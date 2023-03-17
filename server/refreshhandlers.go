@@ -207,11 +207,12 @@ func (s *Server) refreshWithConnector(ctx context.Context, rCtx *refreshContext,
 // updateOfflineSession updates offline session in the storage
 func (s *Server) updateOfflineSession(refresh *storage.RefreshToken, ident connector.Identity, lastUsed time.Time) *refreshError {
 	offlineSessionUpdater := func(old storage.OfflineSessions) (storage.OfflineSessions, error) {
-		if old.Refresh[refresh.ClientID].ID != refresh.ID {
+		_, tok := old.FindRefresh(refresh.ID)
+		if tok == nil {
 			return old, errors.New("refresh token invalid")
 		}
 
-		old.Refresh[refresh.ClientID].LastUsed = lastUsed
+		tok.LastUsed = lastUsed
 		if len(ident.ConnectorData) > 0 {
 			old.ConnectorData = ident.ConnectorData
 		}

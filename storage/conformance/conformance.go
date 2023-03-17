@@ -544,7 +544,7 @@ func testOfflineSessionCRUD(t *testing.T, s storage.Storage) {
 	session1 := storage.OfflineSessions{
 		UserID:        userID1,
 		ConnID:        "Conn1",
-		Refresh:       make(map[string]*storage.RefreshTokenRef),
+		Refresh:       make([]*storage.RefreshTokenRef, 0),
 		ConnectorData: []byte(`{"some":"data"}`),
 	}
 
@@ -562,7 +562,7 @@ func testOfflineSessionCRUD(t *testing.T, s storage.Storage) {
 	session2 := storage.OfflineSessions{
 		UserID:        userID2,
 		ConnID:        "Conn2",
-		Refresh:       make(map[string]*storage.RefreshTokenRef),
+		Refresh:       make([]*storage.RefreshTokenRef, 0),
 		ConnectorData: []byte(`{"some":"data"}`),
 	}
 
@@ -590,10 +590,10 @@ func testOfflineSessionCRUD(t *testing.T, s storage.Storage) {
 		CreatedAt: time.Now().UTC().Round(time.Millisecond),
 		LastUsed:  time.Now().UTC().Round(time.Millisecond),
 	}
-	session1.Refresh[tokenRef.ClientID] = &tokenRef
+	session1.Refresh = append(session1.Refresh, &tokenRef)
 
 	if err := s.UpdateOfflineSessions(session1.UserID, session1.ConnID, func(old storage.OfflineSessions) (storage.OfflineSessions, error) {
-		old.Refresh[tokenRef.ClientID] = &tokenRef
+		old.Refresh = append(old.Refresh, &tokenRef)
 		return old, nil
 	}); err != nil {
 		t.Fatalf("failed to update offline session: %v", err)

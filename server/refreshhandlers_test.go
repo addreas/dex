@@ -71,7 +71,7 @@ func mockRefreshTokenTestStorage(t *testing.T, s storage.Storage, useObsolete bo
 	offlineSessions := storage.OfflineSessions{
 		UserID:        "1",
 		ConnID:        "test",
-		Refresh:       map[string]*storage.RefreshTokenRef{"test": {ID: "test", ClientID: "test"}},
+		Refresh:       []*storage.RefreshTokenRef{{ID: "test", ClientID: "test"}},
 		ConnectorData: nil,
 	}
 

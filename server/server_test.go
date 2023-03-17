@@ -1560,7 +1560,12 @@ func TestRefreshTokenFlow(t *testing.T) {
 	}
 	defer resp.Body.Close()
 
-	// try to refresh expired token with old refresh token.
+	// try to refresh token.
+	if _, err := oauth2Client.config.TokenSource(ctx, tok).Token(); err != nil {
+		t.Errorf("Token refreshed valid refresh token, no error expected.")
+	}
+
+	// try to refresh token again with same refresh token.
 	if _, err := oauth2Client.config.TokenSource(ctx, tok).Token(); err == nil {
 		t.Errorf("Token refreshed with invalid refresh token, error expected.")
 	}

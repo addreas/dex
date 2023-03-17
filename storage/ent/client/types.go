@@ -109,7 +109,7 @@ func toStorageOfflineSession(o *db.OfflineSession) storage.OfflineSessions {
 		}
 	} else {
 		// Server code assumes this will be non-nil.
-		s.Refresh = make(map[string]*storage.RefreshTokenRef)
+		s.Refresh = make([]*storage.RefreshTokenRef, 0)
 	}
 	return s
 }

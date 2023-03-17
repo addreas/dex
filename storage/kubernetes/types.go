@@ -661,10 +661,10 @@ type OfflineSessions struct {
 	k8sapi.TypeMeta   `json:",inline"`
 	k8sapi.ObjectMeta `json:"metadata,omitempty"`
 
-	UserID        string                              `json:"userID,omitempty"`
-	ConnID        string                              `json:"connID,omitempty"`
-	Refresh       map[string]*storage.RefreshTokenRef `json:"refresh,omitempty"`
-	ConnectorData []byte                              `json:"connectorData,omitempty"`
+	UserID        string                     `json:"userID,omitempty"`
+	ConnID        string                     `json:"connID,omitempty"`
+	Refresh       []*storage.RefreshTokenRef `json:"refresh,omitempty"`
+	ConnectorData []byte                     `json:"connectorData,omitempty"`
 }
 
 func (cli *client) fromStorageOfflineSessions(o storage.OfflineSessions) OfflineSessions {
@@ -693,7 +693,7 @@ func toStorageOfflineSessions(o OfflineSessions) storage.OfflineSessions {
 	}
 	if s.Refresh == nil {
 		// Server code assumes this will be non-nil.
-		s.Refresh = make(map[string]*storage.RefreshTokenRef)
+		s.Refresh = make([]*storage.RefreshTokenRef, 0)
 	}
 	return s
 }

@@ -153,6 +153,7 @@ message RevokeRefreshReq {
   // The "sub" claim returned in the ID Token.
   string user_id = 1;
   string client_id = 2;
+  string token_id = 3;
 }
 
 // RevokeRefreshResp determines if the refresh token is revoked successfully.

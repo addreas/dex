@@ -263,9 +263,8 @@ func TestRefreshToken(t *testing.T) {
 	session := storage.OfflineSessions{
 		UserID:  r.Claims.UserID,
 		ConnID:  r.ConnectorID,
-		Refresh: make(map[string]*storage.RefreshTokenRef),
+		Refresh: []*storage.RefreshTokenRef{&tokenRef},
 	}
-	session.Refresh[tokenRef.ClientID] = &tokenRef
 
 	if err := s.CreateOfflineSessions(ctx, session); err != nil {
 		t.Fatalf("create offline session: %v", err)
@@ -302,6 +301,7 @@ func TestRefreshToken(t *testing.T) {
 	revokeReq := api.RevokeRefreshReq{
 		UserId:   subjectString,
 		ClientId: r.ClientID,
+		TokenId:  r.ID,
 	}
 
 	resp, err := client.RevokeRefresh(ctx, &revokeReq)

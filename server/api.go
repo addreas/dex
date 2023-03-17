@@ -342,22 +342,19 @@ func (d dexAPI) RevokeRefresh(ctx context.Context, req *api.RevokeRefreshReq) (*
 		return nil, err
 	}
 
-	var (
-		refreshID string
-		notFound  bool
-	)
+	var notFound bool
+
 	updater := func(old storage.OfflineSessions) (storage.OfflineSessions, error) {
-		refreshRef := old.Refresh[req.ClientId]
+		index, refreshRef := old.FindRefresh(req.TokenId)
+
 		if refreshRef == nil || refreshRef.ID == "" {
 			d.logger.Error("refresh token issued to client not found for deletion", "client_id", req.ClientId, "user_id", id.UserId)
 			notFound = true
 			return old, storage.ErrNotFound
 		}
 
-		refreshID = refreshRef.ID
-
-		// Remove entry from Refresh list of the OfflineSession object.
-		delete(old.Refresh, req.ClientId)
+		old.Refresh[index] = old.Refresh[len(old.Refresh)-1]
+		old.Refresh = old.Refresh[:len(old.Refresh)-1]
 
 		return old, nil
 	}
@@ -378,7 +375,7 @@ func (d dexAPI) RevokeRefresh(ctx context.Context, req *api.RevokeRefreshReq) (*
 	//
 	// TODO(ericchiang): we don't have any good recourse if this call fails.
 	// Consider garbage collection of refresh tokens with no associated ref.
-	if err := d.s.DeleteRefresh(refreshID); err != nil {
+	if err := d.s.DeleteRefresh(req.TokenId); err != nil {
 		d.logger.Error("failed to delete refresh token", "err", err)
 		return nil, err
 	}

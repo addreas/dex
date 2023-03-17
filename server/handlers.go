@@ -568,7 +568,7 @@ func (s *Server) finalizeLogin(ctx context.Context, identity connector.Identity,
 		offlineSessions := storage.OfflineSessions{
 			UserID:        identity.UserID,
 			ConnID:        authReq.ConnectorID,
-			Refresh:       make(map[string]*storage.RefreshTokenRef),
+			Refresh:       make([]*storage.RefreshTokenRef, 0),
 			ConnectorData: identity.ConnectorData,
 		}
 
@@ -1045,9 +1045,9 @@ func (s *Server) exchangeAuthCode(ctx context.Context, w http.ResponseWriter, au
 			offlineSessions := storage.OfflineSessions{
 				UserID:  refresh.Claims.UserID,
 				ConnID:  refresh.ConnectorID,
-				Refresh: make(map[string]*storage.RefreshTokenRef),
+				Refresh: make([]*storage.RefreshTokenRef, 0),
 			}
-			offlineSessions.Refresh[tokenRef.ClientID] = &tokenRef
+			offlineSessions.Refresh = append(offlineSessions.Refresh, &tokenRef)
 
 			// Create a new OfflineSession object for the user and add a reference object for
 			// the newly received refreshtoken.
@@ -1058,19 +1058,13 @@ func (s *Server) exchangeAuthCode(ctx context.Context, w http.ResponseWriter, au
 				return nil, err
 			}
 		} else {
-			if oldTokenRef, ok := session.Refresh[tokenRef.ClientID]; ok {
-				// Delete old refresh token from storage.
-				if err := s.storage.DeleteRefresh(oldTokenRef.ID); err != nil && err != storage.ErrNotFound {
-					s.logger.Error("failed to delete refresh token", "err", err)
-					s.tokenErrHelper(w, errServerError, "", http.StatusInternalServerError)
-					deleteToken = true
-					return nil, err
-				}
-			}
+			session.RemoveExpiredSessions(func(r *storage.RefreshTokenRef) bool {
+				return s.refreshTokenPolicy.CompletelyExpired(r.CreatedAt) || s.refreshTokenPolicy.ExpiredBecauseUnused(r.LastUsed)
+			})
 
 			// Update existing OfflineSession obj with new RefreshTokenRef.
 			if err := s.storage.UpdateOfflineSessions(session.UserID, session.ConnID, func(old storage.OfflineSessions) (storage.OfflineSessions, error) {
-				old.Refresh[tokenRef.ClientID] = &tokenRef
+				old.Refresh = append(old.Refresh, &tokenRef)
 				return old, nil
 			}); err != nil {
 				s.logger.Error("failed to update offline session", "err", err)
@@ -1297,10 +1291,10 @@ func (s *Server) handlePasswordGrant(w http.ResponseWriter, r *http.Request, cli
 			offlineSessions := storage.OfflineSessions{
 				UserID:        refresh.Claims.UserID,
 				ConnID:        refresh.ConnectorID,
-				Refresh:       make(map[string]*storage.RefreshTokenRef),
+				Refresh:       make([]*storage.RefreshTokenRef, 0),
 				ConnectorData: identity.ConnectorData,
 			}
-			offlineSessions.Refresh[tokenRef.ClientID] = &tokenRef
+			offlineSessions.Refresh = append(offlineSessions.Refresh, &tokenRef)
 
 			// Create a new OfflineSession object for the user and add a reference object for
 			// the newly received refreshtoken.
@@ -1311,23 +1305,13 @@ func (s *Server) handlePasswordGrant(w http.ResponseWriter, r *http.Request, cli
 				return
 			}
 		} else {
-			if oldTokenRef, ok := session.Refresh[tokenRef.ClientID]; ok {
-				// Delete old refresh token from storage.
-				if err := s.storage.DeleteRefresh(oldTokenRef.ID); err != nil {
-					if err == storage.ErrNotFound {
-						s.logger.Warn("database inconsistent, refresh token missing", "token_id", oldTokenRef.ID)
-					} else {
-						s.logger.Error("failed to delete refresh token", "err", err)
-						s.tokenErrHelper(w, errServerError, "", http.StatusInternalServerError)
-						deleteToken = true
-						return
-					}
-				}
-			}
+			session.RemoveExpiredSessions(func(r *storage.RefreshTokenRef) bool {
+				return s.refreshTokenPolicy.CompletelyExpired(r.CreatedAt) || s.refreshTokenPolicy.ExpiredBecauseUnused(r.LastUsed)
+			})
 
 			// Update existing OfflineSession obj with new RefreshTokenRef.
 			if err := s.storage.UpdateOfflineSessions(session.UserID, session.ConnID, func(old storage.OfflineSessions) (storage.OfflineSessions, error) {
-				old.Refresh[tokenRef.ClientID] = &tokenRef
+				old.Refresh = append(old.Refresh, &tokenRef)
 				old.ConnectorData = identity.ConnectorData
 				return old, nil
 			}); err != nil {

@@ -227,11 +227,11 @@ func (r *RefreshTokenPolicy) RotationEnabled() bool {
 	return r.rotateRefreshTokens
 }
 
-func (r *RefreshTokenPolicy) CompletelyExpired(lastUsed time.Time) bool {
+func (r *RefreshTokenPolicy) CompletelyExpired(createdAt time.Time) bool {
 	if r.absoluteLifetime == 0 {
 		return false // expiration disabled
 	}
-	return r.now().After(lastUsed.Add(r.absoluteLifetime))
+	return r.now().After(createdAt.Add(r.absoluteLifetime))
 }
 
 func (r *RefreshTokenPolicy) ExpiredBecauseUnused(lastUsed time.Time) bool {

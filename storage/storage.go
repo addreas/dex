@@ -326,10 +326,28 @@ type OfflineSessions struct {
 
 	// Refresh is a hash table of refresh token reference objects
 	// indexed by the ClientID of the refresh token.
-	Refresh map[string]*RefreshTokenRef
+	Refresh []*RefreshTokenRef
 
 	// Authentication data provided by an upstream source.
 	ConnectorData []byte
+}
+
+func (o OfflineSessions) FindRefresh(id string) (int, *RefreshTokenRef) {
+	for i, r := range o.Refresh {
+		if r.ID == id {
+			return i, r
+		}
+	}
+	return -1, nil
+}
+
+func (o *OfflineSessions) RemoveExpiredSessions(expired func(*RefreshTokenRef) bool) {
+	for i, r := range o.Refresh {
+		if expired(r) {
+			o.Refresh[i] = o.Refresh[len(o.Refresh)-1]
+			o.Refresh = o.Refresh[:len(o.Refresh)-1]
+		}
+	}
 }
 
 // Password is an email to password mapping managed by the storage.
