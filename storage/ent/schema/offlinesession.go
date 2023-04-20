@@ -36,6 +36,7 @@ func (OfflineSession) Fields() []ent.Field {
 			SchemaType(textSchema).
 			NotEmpty(),
 		field.Bytes("refresh"),
+		field.Bytes("refresh_list").Nillable(),
 		field.Bytes("connector_data").Nillable().Optional(),
 	}
 }

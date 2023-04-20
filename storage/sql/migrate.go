@@ -298,4 +298,11 @@ var migrations = []migration{
 				add column hmac_key bytea;`,
 		},
 	},
+	{
+		stmts: []string{
+			`
+			alter table offline_session
+				add column refresh_list bytea;`,
+		},
+	},
 }

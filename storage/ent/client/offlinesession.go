@@ -21,7 +21,8 @@ func (d *Database) CreateOfflineSessions(ctx context.Context, session storage.Of
 		SetUserID(session.UserID).
 		SetConnID(session.ConnID).
 		SetConnectorData(session.ConnectorData).
-		SetRefresh(encodedRefresh).
+		SetRefresh([]byte("{}")).
+		SetRefreshList(encodedRefresh).
 		Save(ctx)
 	if err != nil {
 		return convertDBError("create offline session: %w", err)
@@ -79,7 +80,8 @@ func (d *Database) UpdateOfflineSessions(userID string, connID string, updater f
 		SetUserID(newOfflineSession.UserID).
 		SetConnID(newOfflineSession.ConnID).
 		SetConnectorData(newOfflineSession.ConnectorData).
-		SetRefresh(encodedRefresh).
+		SetRefresh([]byte("{}")).
+		SetRefreshList(encodedRefresh).
 		Save(context.TODO())
 	if err != nil {
 		return rollback(tx, "update offline session uploading: %w", err)

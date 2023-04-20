@@ -61,6 +61,12 @@ func (osu *OfflineSessionUpdate) SetRefresh(b []byte) *OfflineSessionUpdate {
 	return osu
 }
 
+// SetRefreshList sets the "refresh_list" field.
+func (osu *OfflineSessionUpdate) SetRefreshList(b []byte) *OfflineSessionUpdate {
+	osu.mutation.SetRefreshList(b)
+	return osu
+}
+
 // SetConnectorData sets the "connector_data" field.
 func (osu *OfflineSessionUpdate) SetConnectorData(b []byte) *OfflineSessionUpdate {
 	osu.mutation.SetConnectorData(b)
@@ -141,6 +147,9 @@ func (osu *OfflineSessionUpdate) sqlSave(ctx context.Context) (n int, err error)
 	if value, ok := osu.mutation.Refresh(); ok {
 		_spec.SetField(offlinesession.FieldRefresh, field.TypeBytes, value)
 	}
+	if value, ok := osu.mutation.RefreshList(); ok {
+		_spec.SetField(offlinesession.FieldRefreshList, field.TypeBytes, value)
+	}
 	if value, ok := osu.mutation.ConnectorData(); ok {
 		_spec.SetField(offlinesession.FieldConnectorData, field.TypeBytes, value)
 	}
@@ -198,6 +207,12 @@ func (osuo *OfflineSessionUpdateOne) SetNillableConnID(s *string) *OfflineSessio
 // SetRefresh sets the "refresh" field.
 func (osuo *OfflineSessionUpdateOne) SetRefresh(b []byte) *OfflineSessionUpdateOne {
 	osuo.mutation.SetRefresh(b)
+	return osuo
+}
+
+// SetRefreshList sets the "refresh_list" field.
+func (osuo *OfflineSessionUpdateOne) SetRefreshList(b []byte) *OfflineSessionUpdateOne {
+	osuo.mutation.SetRefreshList(b)
 	return osuo
 }
 
@@ -310,6 +325,9 @@ func (osuo *OfflineSessionUpdateOne) sqlSave(ctx context.Context) (_node *Offlin
 	}
 	if value, ok := osuo.mutation.Refresh(); ok {
 		_spec.SetField(offlinesession.FieldRefresh, field.TypeBytes, value)
+	}
+	if value, ok := osuo.mutation.RefreshList(); ok {
+		_spec.SetField(offlinesession.FieldRefreshList, field.TypeBytes, value)
 	}
 	if value, ok := osuo.mutation.ConnectorData(); ok {
 		_spec.SetField(offlinesession.FieldConnectorData, field.TypeBytes, value)

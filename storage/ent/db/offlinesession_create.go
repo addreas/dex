@@ -37,6 +37,12 @@ func (osc *OfflineSessionCreate) SetRefresh(b []byte) *OfflineSessionCreate {
 	return osc
 }
 
+// SetRefreshList sets the "refresh_list" field.
+func (osc *OfflineSessionCreate) SetRefreshList(b []byte) *OfflineSessionCreate {
+	osc.mutation.SetRefreshList(b)
+	return osc
+}
+
 // SetConnectorData sets the "connector_data" field.
 func (osc *OfflineSessionCreate) SetConnectorData(b []byte) *OfflineSessionCreate {
 	osc.mutation.SetConnectorData(b)
@@ -102,6 +108,9 @@ func (osc *OfflineSessionCreate) check() error {
 	if _, ok := osc.mutation.Refresh(); !ok {
 		return &ValidationError{Name: "refresh", err: errors.New(`db: missing required field "OfflineSession.refresh"`)}
 	}
+	if _, ok := osc.mutation.RefreshList(); !ok {
+		return &ValidationError{Name: "refresh_list", err: errors.New(`db: missing required field "OfflineSession.refresh_list"`)}
+	}
 	if v, ok := osc.mutation.ID(); ok {
 		if err := offlinesession.IDValidator(v); err != nil {
 			return &ValidationError{Name: "id", err: fmt.Errorf(`db: validator failed for field "OfflineSession.id": %w`, err)}
@@ -153,6 +162,10 @@ func (osc *OfflineSessionCreate) createSpec() (*OfflineSession, *sqlgraph.Create
 	if value, ok := osc.mutation.Refresh(); ok {
 		_spec.SetField(offlinesession.FieldRefresh, field.TypeBytes, value)
 		_node.Refresh = value
+	}
+	if value, ok := osc.mutation.RefreshList(); ok {
+		_spec.SetField(offlinesession.FieldRefreshList, field.TypeBytes, value)
+		_node.RefreshList = &value
 	}
 	if value, ok := osc.mutation.ConnectorData(); ok {
 		_spec.SetField(offlinesession.FieldConnectorData, field.TypeBytes, value)

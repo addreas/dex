@@ -77,6 +77,11 @@ func Refresh(v []byte) predicate.OfflineSession {
 	return predicate.OfflineSession(sql.FieldEQ(FieldRefresh, v))
 }
 
+// RefreshList applies equality check predicate on the "refresh_list" field. It's identical to RefreshListEQ.
+func RefreshList(v []byte) predicate.OfflineSession {
+	return predicate.OfflineSession(sql.FieldEQ(FieldRefreshList, v))
+}
+
 // ConnectorData applies equality check predicate on the "connector_data" field. It's identical to ConnectorDataEQ.
 func ConnectorData(v []byte) predicate.OfflineSession {
 	return predicate.OfflineSession(sql.FieldEQ(FieldConnectorData, v))
@@ -250,6 +255,46 @@ func RefreshLT(v []byte) predicate.OfflineSession {
 // RefreshLTE applies the LTE predicate on the "refresh" field.
 func RefreshLTE(v []byte) predicate.OfflineSession {
 	return predicate.OfflineSession(sql.FieldLTE(FieldRefresh, v))
+}
+
+// RefreshListEQ applies the EQ predicate on the "refresh_list" field.
+func RefreshListEQ(v []byte) predicate.OfflineSession {
+	return predicate.OfflineSession(sql.FieldEQ(FieldRefreshList, v))
+}
+
+// RefreshListNEQ applies the NEQ predicate on the "refresh_list" field.
+func RefreshListNEQ(v []byte) predicate.OfflineSession {
+	return predicate.OfflineSession(sql.FieldNEQ(FieldRefreshList, v))
+}
+
+// RefreshListIn applies the In predicate on the "refresh_list" field.
+func RefreshListIn(vs ...[]byte) predicate.OfflineSession {
+	return predicate.OfflineSession(sql.FieldIn(FieldRefreshList, vs...))
+}
+
+// RefreshListNotIn applies the NotIn predicate on the "refresh_list" field.
+func RefreshListNotIn(vs ...[]byte) predicate.OfflineSession {
+	return predicate.OfflineSession(sql.FieldNotIn(FieldRefreshList, vs...))
+}
+
+// RefreshListGT applies the GT predicate on the "refresh_list" field.
+func RefreshListGT(v []byte) predicate.OfflineSession {
+	return predicate.OfflineSession(sql.FieldGT(FieldRefreshList, v))
+}
+
+// RefreshListGTE applies the GTE predicate on the "refresh_list" field.
+func RefreshListGTE(v []byte) predicate.OfflineSession {
+	return predicate.OfflineSession(sql.FieldGTE(FieldRefreshList, v))
+}
+
+// RefreshListLT applies the LT predicate on the "refresh_list" field.
+func RefreshListLT(v []byte) predicate.OfflineSession {
+	return predicate.OfflineSession(sql.FieldLT(FieldRefreshList, v))
+}
+
+// RefreshListLTE applies the LTE predicate on the "refresh_list" field.
+func RefreshListLTE(v []byte) predicate.OfflineSession {
+	return predicate.OfflineSession(sql.FieldLTE(FieldRefreshList, v))
 }
 
 // ConnectorDataEQ applies the EQ predicate on the "connector_data" field.

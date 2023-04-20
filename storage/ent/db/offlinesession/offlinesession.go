@@ -17,6 +17,8 @@ const (
 	FieldConnID = "conn_id"
 	// FieldRefresh holds the string denoting the refresh field in the database.
 	FieldRefresh = "refresh"
+	// FieldRefreshList holds the string denoting the refresh_list field in the database.
+	FieldRefreshList = "refresh_list"
 	// FieldConnectorData holds the string denoting the connector_data field in the database.
 	FieldConnectorData = "connector_data"
 	// Table holds the table name of the offlinesession in the database.
@@ -29,6 +31,7 @@ var Columns = []string{
 	FieldUserID,
 	FieldConnID,
 	FieldRefresh,
+	FieldRefreshList,
 	FieldConnectorData,
 }
 

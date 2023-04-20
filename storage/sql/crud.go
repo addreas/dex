@@ -694,13 +694,13 @@ func scanPassword(s scanner) (p storage.Password, err error) {
 func (c *conn) CreateOfflineSessions(ctx context.Context, s storage.OfflineSessions) error {
 	_, err := c.Exec(`
 		insert into offline_session (
-			user_id, conn_id, refresh, connector_data
+			user_id, conn_id, refresh, refresh_list, connector_data
 		)
 		values (
-			$1, $2, $3, $4
+			$1, $2, $3, $4, $5
 		);
 	`,
-		s.UserID, s.ConnID, encoder(s.Refresh), s.ConnectorData,
+		s.UserID, s.ConnID, []byte("{}"), encoder(s.Refresh), s.ConnectorData,
 	)
 	if err != nil {
 		if c.alreadyExistsCheck(err) {
@@ -725,7 +725,7 @@ func (c *conn) UpdateOfflineSessions(userID string, connID string, updater func(
 		_, err = tx.Exec(`
 			update offline_session
 			set
-				refresh = $1,
+				refresh_list = $1,
 				connector_data = $2
 			where user_id = $3 AND conn_id = $4;
 		`,
@@ -745,21 +745,27 @@ func (c *conn) GetOfflineSessions(userID string, connID string) (storage.Offline
 func getOfflineSessions(q querier, userID string, connID string) (storage.OfflineSessions, error) {
 	return scanOfflineSessions(q.QueryRow(`
 		select
-			user_id, conn_id, refresh, connector_data
+			user_id, conn_id, refresh, refresh_list, connector_data
 		from offline_session
 		where user_id = $1 AND conn_id = $2;
 		`, userID, connID))
 }
 
 func scanOfflineSessions(s scanner) (o storage.OfflineSessions, err error) {
+	var refreshMap map[string]*storage.RefreshTokenRef
 	err = s.Scan(
-		&o.UserID, &o.ConnID, decoder(&o.Refresh), &o.ConnectorData,
+		&o.UserID, &o.ConnID, decoder(&refreshMap), decoder(&o.Refresh), &o.ConnectorData,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return o, storage.ErrNotFound
 		}
 		return o, fmt.Errorf("select offline session: %v", err)
+	}
+	if len(refreshMap) > 0 {
+		for _, value := range refreshMap {
+			o.Refresh = append(o.Refresh, value)
+		}
 	}
 	return o, nil
 }

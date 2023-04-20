@@ -147,6 +147,7 @@ var (
 		{Name: "user_id", Type: field.TypeString, Size: 2147483647, SchemaType: map[string]string{"mysql": "varchar(384)", "postgres": "text", "sqlite3": "text"}},
 		{Name: "conn_id", Type: field.TypeString, Size: 2147483647, SchemaType: map[string]string{"mysql": "varchar(384)", "postgres": "text", "sqlite3": "text"}},
 		{Name: "refresh", Type: field.TypeBytes},
+		{Name: "refresh_list", Type: field.TypeBytes},
 		{Name: "connector_data", Type: field.TypeBytes, Nullable: true},
 	}
 	// OfflineSessionsTable holds the schema information for the "offline_sessions" table.

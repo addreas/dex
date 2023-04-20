@@ -102,14 +102,23 @@ func toStorageOfflineSession(o *db.OfflineSession) storage.OfflineSessions {
 		ConnectorData: *o.ConnectorData,
 	}
 
-	if o.Refresh != nil {
-		if err := json.Unmarshal(o.Refresh, &s.Refresh); err != nil {
+	if o.RefreshList != nil {
+		if err := json.Unmarshal(*o.RefreshList, &s.Refresh); err != nil {
 			// Correctness of json structure if guaranteed on uploading
 			panic(err)
 		}
 	} else {
 		// Server code assumes this will be non-nil.
 		s.Refresh = make([]*storage.RefreshTokenRef, 0)
+	}
+	if o.Refresh != nil {
+		var refreshMap map[string]*storage.RefreshTokenRef
+		if err := json.Unmarshal(o.Refresh, &refreshMap); err != nil {
+			panic(err)
+		}
+		for _, value := range refreshMap {
+			s.Refresh = append(s.Refresh, value)
+		}
 	}
 	return s
 }

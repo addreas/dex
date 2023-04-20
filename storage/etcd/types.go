@@ -227,26 +227,32 @@ type Keys struct {
 
 // OfflineSessions is a mirrored struct from storage with JSON struct tags
 type OfflineSessions struct {
-	UserID        string                     `json:"user_id,omitempty"`
-	ConnID        string                     `json:"conn_id,omitempty"`
-	Refresh       []*storage.RefreshTokenRef `json:"refresh,omitempty"`
-	ConnectorData []byte                     `json:"connectorData,omitempty"`
+	UserID        string                              `json:"user_id,omitempty"`
+	ConnID        string                              `json:"conn_id,omitempty"`
+	Refresh       map[string]*storage.RefreshTokenRef `json:"refresh,omitempty"`
+	RefreshList   []*storage.RefreshTokenRef          `json:"refreshList,omitempty"`
+	ConnectorData []byte                              `json:"connectorData,omitempty"`
 }
 
 func fromStorageOfflineSessions(o storage.OfflineSessions) OfflineSessions {
 	return OfflineSessions{
 		UserID:        o.UserID,
 		ConnID:        o.ConnID,
-		Refresh:       o.Refresh,
+		RefreshList:   o.Refresh,
 		ConnectorData: o.ConnectorData,
 	}
 }
 
 func toStorageOfflineSessions(o OfflineSessions) storage.OfflineSessions {
+	if len(o.Refresh) > 0 {
+		for _, value := range o.Refresh {
+			o.RefreshList = append(o.RefreshList, value)
+		}
+	}
 	s := storage.OfflineSessions{
 		UserID:        o.UserID,
 		ConnID:        o.ConnID,
-		Refresh:       o.Refresh,
+		Refresh:       o.RefreshList,
 		ConnectorData: o.ConnectorData,
 	}
 	if s.Refresh == nil {

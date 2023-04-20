@@ -5804,6 +5804,7 @@ type OfflineSessionMutation struct {
 	user_id        *string
 	conn_id        *string
 	refresh        *[]byte
+	refresh_list   *[]byte
 	connector_data *[]byte
 	clearedFields  map[string]struct{}
 	done           bool
@@ -6023,6 +6024,42 @@ func (m *OfflineSessionMutation) ResetRefresh() {
 	m.refresh = nil
 }
 
+// SetRefreshList sets the "refresh_list" field.
+func (m *OfflineSessionMutation) SetRefreshList(b []byte) {
+	m.refresh_list = &b
+}
+
+// RefreshList returns the value of the "refresh_list" field in the mutation.
+func (m *OfflineSessionMutation) RefreshList() (r []byte, exists bool) {
+	v := m.refresh_list
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRefreshList returns the old "refresh_list" field's value of the OfflineSession entity.
+// If the OfflineSession object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OfflineSessionMutation) OldRefreshList(ctx context.Context) (v *[]byte, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRefreshList is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRefreshList requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRefreshList: %w", err)
+	}
+	return oldValue.RefreshList, nil
+}
+
+// ResetRefreshList resets all changes to the "refresh_list" field.
+func (m *OfflineSessionMutation) ResetRefreshList() {
+	m.refresh_list = nil
+}
+
 // SetConnectorData sets the "connector_data" field.
 func (m *OfflineSessionMutation) SetConnectorData(b []byte) {
 	m.connector_data = &b
@@ -6106,7 +6143,7 @@ func (m *OfflineSessionMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *OfflineSessionMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 5)
 	if m.user_id != nil {
 		fields = append(fields, offlinesession.FieldUserID)
 	}
@@ -6115,6 +6152,9 @@ func (m *OfflineSessionMutation) Fields() []string {
 	}
 	if m.refresh != nil {
 		fields = append(fields, offlinesession.FieldRefresh)
+	}
+	if m.refresh_list != nil {
+		fields = append(fields, offlinesession.FieldRefreshList)
 	}
 	if m.connector_data != nil {
 		fields = append(fields, offlinesession.FieldConnectorData)
@@ -6133,6 +6173,8 @@ func (m *OfflineSessionMutation) Field(name string) (ent.Value, bool) {
 		return m.ConnID()
 	case offlinesession.FieldRefresh:
 		return m.Refresh()
+	case offlinesession.FieldRefreshList:
+		return m.RefreshList()
 	case offlinesession.FieldConnectorData:
 		return m.ConnectorData()
 	}
@@ -6150,6 +6192,8 @@ func (m *OfflineSessionMutation) OldField(ctx context.Context, name string) (ent
 		return m.OldConnID(ctx)
 	case offlinesession.FieldRefresh:
 		return m.OldRefresh(ctx)
+	case offlinesession.FieldRefreshList:
+		return m.OldRefreshList(ctx)
 	case offlinesession.FieldConnectorData:
 		return m.OldConnectorData(ctx)
 	}
@@ -6181,6 +6225,13 @@ func (m *OfflineSessionMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetRefresh(v)
+		return nil
+	case offlinesession.FieldRefreshList:
+		v, ok := value.([]byte)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRefreshList(v)
 		return nil
 	case offlinesession.FieldConnectorData:
 		v, ok := value.([]byte)
@@ -6255,6 +6306,9 @@ func (m *OfflineSessionMutation) ResetField(name string) error {
 		return nil
 	case offlinesession.FieldRefresh:
 		m.ResetRefresh()
+		return nil
+	case offlinesession.FieldRefreshList:
+		m.ResetRefreshList()
 		return nil
 	case offlinesession.FieldConnectorData:
 		m.ResetConnectorData()
