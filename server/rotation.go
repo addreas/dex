@@ -243,7 +243,7 @@ func (r *RefreshTokenPolicy) ExpiredBecauseUnused(lastUsed time.Time) bool {
 
 func (r *RefreshTokenPolicy) AllowedToReuse(lastUsed time.Time) bool {
 	if r.reuseInterval == 0 {
-		return false // expiration disabled
+		return true // expiration disabled
 	}
 	return !r.now().After(lastUsed.Add(r.reuseInterval))
 }
